@@ -19,10 +19,20 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        // First   Admin
         User::create([
-            'name' => 'Admin',
-            'email' => 'adminprawash@gmail.com',
+            'name' => 'Diwas Sigdel',
+            'email' => 'diwassigdel18@gmail.com',
             'password'=>bcrypt('prawash@187'),
+            'role'=>'admin',
+        ]);
+
+
+         // Second Admin
+        User::create([
+            'name' => 'Pramisha Bhujel',
+            'email' => 'pramishabhujel18@gmail.com',
+            'password'=>bcrypt('prawash@1877    '),
             'role'=>'admin',
         ]);
     }

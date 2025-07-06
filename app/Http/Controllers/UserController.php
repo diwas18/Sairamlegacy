@@ -10,27 +10,25 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index(Request $request)
-{
-    $query = User::query();
+    public function index(Request $request)
+    {
+        $query = User::query();
 
-    if ($search = $request->input('search')) {
-        $query->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('users.index', compact('users'));
     }
-
-    $users = $query->orderBy('created_at', 'desc')->paginate(10);
-
-    return view('users.index', compact('users'));
-}
-
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        // Return a view to create a new user
         return view('users.create');
     }
 
@@ -39,21 +37,28 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request data
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'address'  => 'required|string|max:255',
+            'phone'    => ['nullable', 'regex:/^(98|97)\d{8}$/'],
+            'photo'    => 'nullable|image|max:2048',
+            'gender'   => 'required|in:male,female,other',
         ]);
 
-        // Create a new user
-        \App\Models\User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+        $photoPath = $request->file('photo') ? $request->file('photo')->store('photos', 'public') : null;
+
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => bcrypt($request->password),
+            'address'  => $request->address,
+            'phone'    => $request->phone,
+            'photo'    => $photoPath,
+            'gender'   => $request->gender,
         ]);
 
-        // Redirect back with a success message
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
@@ -62,10 +67,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        // Find the user by ID
-        $user = \App\Models\User::findOrFail($id);
-
-        // Return a view with the user data
+        $user = User::findOrFail($id);
         return view('users.show', compact('user'));
     }
 
@@ -74,10 +76,7 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        // Find the user by ID
-        $user = \App\Models\User::findOrFail($id);
-
-        // Return a view to edit the user
+        $user = User::findOrFail($id);
         return view('users.edit', compact('user'));
     }
 
@@ -86,28 +85,34 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
-        // Validate the request data
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
+            'address'  => 'required|string|max:255',
+            'phone'    => ['nullable', 'regex:/^(98|97)\d{8}$/'],
+            'photo'    => 'nullable|image|max:2048',
+            'gender'   => 'required|in:male,female,other',
         ]);
 
-        // Find the user by ID
-        $user = \App\Models\User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        // Update the user data
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->address = $request->address;
+        $user->phone = $request->phone;
+        $user->gender = $request->gender;
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
 
+        if ($request->hasFile('photo')) {
+            $user->photo = $request->file('photo')->store('photos', 'public');
+        }
+
         $user->save();
 
-        // Redirect back with a success message
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
@@ -116,13 +121,8 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        // Find the user by ID
-        $user = \App\Models\User::findOrFail($id);
-
-        // Delete the user
+        $user = User::findOrFail($id);
         $user->delete();
-
-        // Redirect back with a success message
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

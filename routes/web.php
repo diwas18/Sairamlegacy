@@ -11,6 +11,11 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Notification;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\FacebookController;
+use App\Http\Controllers\ReviewController;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/',[PagesController::class,'index'])->name('home');
@@ -56,10 +61,11 @@ Route::get('/dashboard',[ DashboardController::class,'dashboard'])
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');    // ✅ GET method to show the form
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); // ✅ PATCH method to submit changes
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); // ✅ DELETE method to delete
 });
+
 
 Route::get('/notifications', function () {
     return view('notifications.all', [
@@ -83,5 +89,19 @@ Route::post('/notifications/mark-as-read', function () {
 
 Route::resource('users', App\Http\Controllers\UserController::class);
 
+
+
+Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\GoogleController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'callback'])->name('google.callback');
+Route::get('/auth/facebook/redirect', [App\Http\Controllers\Auth\FacebookController::class, 'redirect'])->name('facebook.redirect');
+Route::get('/auth/facebook/callback', [App\Http\Controllers\Auth\FacebookController::class, 'callback'])->name('facebook.callback');
+
+
+
+Route::get('/review/{id}/create', [ReviewController::class, 'create'])->name('review.create');
+Route::post('/review/store', [ReviewController::class, 'store'])->name('reviews.store');
+Route::get('/review/{id}/edit', [ReviewController::class, 'edit'])->name('review.edit');
+Route::post('/review/{id}/update', [ReviewController::class, 'update'])->name('review.update');
+Route::get('/review/{id}/destroy', [ReviewController::class, 'destroy'])->name('review.destroy');
 
 require __DIR__.'/auth.php';
