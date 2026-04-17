@@ -7,6 +7,8 @@
             class="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
         />
+
+        {{-- Discount badge (top-left) --}}
         @if($product->discounted_price)
             @php
                 $discount = ceil((($product->price - $product->discounted_price) / $product->price) * 100);
@@ -15,18 +17,46 @@
                 {{ $discount }}% OFF
             </div>
         @endif
-    </div>
-    <div class="p-5 text-center">
-        <h2 class="text-xl font-semibold text-[#4B2E0A] truncate" title="{{ $product->name }}">{{ $product->name }}</h2>
 
-        @if($product->discounted_price)
-        <p class="mt-3 text-lg font-bold text-[#D4AF37]">
-            Rs. {{ number_format($product->discounted_price) }}
-            <span class="ml-3 text-gray-400 line-through text-sm font-normal">Rs. {{ number_format($product->price) }}</span>
-        </p>
-        @else
-        <p class="mt-3 text-lg font-bold text-[#4B2E0A]">Rs. {{ number_format($product->price) }}</p>
+        {{-- Stock badge (top-right) — only shown when low or out --}}
+        @if($product->stock <= 0)
+            <div class="absolute top-2 right-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-semibold shadow">
+                Out of stock
+            </div>
+        @elseif($product->stock <= 5)
+            <div class="absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-semibold shadow animate-pulse">
+                Only {{ $product->stock }} left!
+            </div>
         @endif
+    </div>
+
+    <div class="p-5 text-center">
+        <h2 class="text-xl font-semibold text-[#4B2E0A] truncate" title="{{ $product->name }}">
+            {{ $product->name }}
+        </h2>
+
+        {{-- Price --}}
+        @if($product->discounted_price)
+            <p class="mt-3 text-lg font-bold text-[#D4AF37]">
+                Rs. {{ number_format($product->discounted_price) }}
+                <span class="ml-3 text-gray-400 line-through text-sm font-normal">Rs. {{ number_format($product->price) }}</span>
+            </p>
+        @else
+            <p class="mt-3 text-lg font-bold text-[#4B2E0A]">Rs. {{ number_format($product->price) }}</p>
+        @endif
+
+        {{-- Stock status --}}
+        <div class="mt-2">
+            @if($product->stock <= 0)
+                <span class="text-xs text-red-600 font-medium">● Out of stock</span>
+            @elseif($product->stock <= 5)
+                <span class="text-xs text-amber-600 font-medium animate-pulse">● Only {{ $product->stock }} left — hurry!</span>
+            @elseif($product->stock <= 15)
+                <span class="text-xs text-green-700 font-medium">● {{ $product->stock }} in stock</span>
+            @else
+                <span class="text-xs text-green-600 font-medium">● In stock</span>
+            @endif
+        </div>
     </div>
 </a>
 @endforeach

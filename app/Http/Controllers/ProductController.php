@@ -78,7 +78,7 @@ class ProductController extends Controller
     $data = $request->validate([
         'name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
         'category_id' => 'required|exists:categories,id',
-        'description' => 'required',
+        'description' => 'required','regex:/^[A-Za-z\s\-]+$/',
         'price' => 'required|numeric|min:0',
         'discounted_price' => 'nullable|numeric|lt:price|min:0',
         'stock' => 'required|numeric|min:0',

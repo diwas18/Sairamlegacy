@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\Models\Review;
+use App\Models\Order;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use Notifiable;
     use HasFactory, Notifiable;
 
     /**
@@ -61,4 +64,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+    /**
+     * Get the orders for the user.
+     */
+     public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
 }

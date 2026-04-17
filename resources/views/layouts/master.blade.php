@@ -3,274 +3,505 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sairam Chasma Pasal - Eyewear</title>
+    <title>Sairam Chasma Pasal</title>
 
-    <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('images/Sairam.png') }}" type="image/x-icon" />
-
-    <!-- Remixicon Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-
-    <!-- Slick Carousel CSS -->
     <link rel="stylesheet" href="/css/slick.css" />
 
-    <!-- Your app CSS & JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Load jQuery first, required by Slick -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
-
-    <!-- Slick Carousel JS -->
     <script src="/js/slick.min.js" defer></script>
+
+    @stack('styles')
+
+    <style>
+        :root {
+            --crimson: #800020;
+            --crimson-dark: #5c0017;
+            --crimson-deep: #3d000e;
+            --gold: #C9A84C;
+            --gold-light: #F5ECD7;
+            --gold-pale: #fdf8ef;
+            --espresso: #3B2209;
+            --espresso-mid: #5A3E28;
+            --cream: #FDFAF4;
+            --cream-soft: #FAF7F2;
+            --border: #EDE8DF;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--espresso); }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--cream-soft); }
+        ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 99px; }
+
+        /* ── Topbar ── */
+        .topbar {
+            background: var(--crimson);
+            color: var(--gold);
+            padding: 8px 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .topbar a { color: var(--gold); transition: color 0.2s; }
+        .topbar a:hover { color: #fff; }
+        .topbar-marquee { flex: 1; overflow: hidden; margin: 0 40px; }
+        .topbar-marquee-inner {
+            display: flex; gap: 60px; white-space: nowrap;
+            animation: marquee 22s linear infinite;
+        }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .topbar-sep { color: var(--gold); opacity: 0.4; }
+
+        /* ── Nav ── */
+        .main-nav {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(253, 250, 244, 0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1400px; margin: 0 auto;
+            padding: 0 3rem;
+            display: flex; align-items: center;
+            gap: 24px; height: 72px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+        .nav-logo img { height: 42px; transition: transform 0.3s; }
+        .nav-logo:hover img { transform: scale(1.05); }
+        .nav-logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--crimson); line-height: 1.1; }
+        .nav-logo-sub { font-size: 10px; font-family: 'Outfit', sans-serif; color: var(--espresso-mid); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+
+        /* ── Search ── */
+        .nav-search { flex: 1; max-width: 440px; position: relative; }
+        .nav-search input {
+            width: 100%;
+            background: var(--cream-soft);
+            border: 1.5px solid transparent;
+            border-radius: 99px;
+            padding: 10px 44px 10px 18px;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            color: var(--espresso);
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .nav-search input:focus { border-color: var(--crimson); background: #fff; }
+        .nav-search input::placeholder { color: #aaa; }
+        .nav-search button {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            color: var(--crimson); font-size: 18px; line-height: 1;
+        }
+        #search-suggestions {
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            z-index: 200; overflow: hidden;
+        }
+
+        /* ── Nav Actions ── */
+        .nav-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        .nav-action-btn {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 3px; padding: 8px 10px; border-radius: 10px; cursor: pointer;
+            text-decoration: none; color: var(--crimson); border: none; background: none;
+            transition: background 0.15s; position: relative;
+        }
+        .nav-action-btn:hover { background: var(--gold-light); }
+        .nav-action-btn i { font-size: 22px; line-height: 1; }
+        .nav-action-btn span.lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .cart-badge {
+            position: absolute; top: 4px; right: 4px;
+            background: var(--crimson); color: var(--gold);
+            font-size: 9px; font-weight: 700;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--cream);
+        }
+        .notif-badge {
+            position: absolute; top: 4px; right: 4px;
+            background: #dc2626; color: #fff;
+            font-size: 9px; font-weight: 700;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--cream);
+        }
+
+        /* ── Profile avatar ── */
+        .nav-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--crimson); color: var(--gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .profile-wrap:hover .nav-avatar { border-color: var(--crimson); }
+
+        /* ── Profile Dropdown ── */
+        .profile-dropdown {
+            display: none; position: absolute; top: calc(100% + 8px); right: 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            width: 200px; z-index: 200; overflow: hidden;
+        }
+        .profile-wrap:hover .profile-dropdown { display: block; }
+        .profile-dropdown a, .profile-dropdown button {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px; font-size: 13px; width: 100%;
+            text-align: left; border: none; background: none; cursor: pointer;
+            color: #444; text-decoration: none; transition: background 0.15s;
+        }
+        .profile-dropdown a:hover { background: var(--cream-soft); }
+        .profile-dropdown button:hover { background: #fef0f0; color: #dc2626; }
+        .profile-dropdown .drop-divider { border-top: 1px solid var(--border); }
+
+        /* ── Notif Panel ── */
+        .notif-panel {
+            display: none; position: absolute; top: calc(100% + 8px); right: 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            width: 320px; max-height: 400px; overflow-y: auto; z-index: 200;
+        }
+        .notif-panel.open { display: block; }
+        .notif-head {
+            padding: 14px 18px; font-weight: 700; font-size: 13px;
+            border-bottom: 1px solid var(--border); background: var(--cream-soft);
+            color: var(--crimson); font-family: 'Playfair Display', serif;
+        }
+        .notif-item {
+            padding: 12px 18px; border-bottom: 1px solid #f9f6f2;
+            font-size: 12px; color: #555;
+        }
+        .notif-item.unread { background: #fffbf3; font-weight: 500; }
+        .notif-item p { color: #333; margin-bottom: 3px; }
+        .notif-item time { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }
+        .notif-footer {
+            display: block; text-align: center; padding: 12px;
+            font-size: 11px; font-weight: 700; color: var(--crimson);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            text-decoration: none;
+        }
+        .notif-footer:hover { background: var(--cream-soft); }
+
+        /* ── Category Bar ── */
+        .cat-bar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+        .cat-bar-inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 3rem;
+            display: flex; gap: 0; overflow-x: auto;
+        }
+        .cat-bar-inner::-webkit-scrollbar { display: none; }
+        .cat-link {
+            padding: 13px 20px; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            color: var(--espresso-mid); white-space: nowrap;
+            text-decoration: none; border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .cat-link:hover { color: var(--crimson); border-bottom-color: var(--crimson); }
+
+        /* ── Auth buttons ── */
+        .btn-login {
+            font-size: 12px; font-weight: 600; color: var(--crimson);
+            text-decoration: none; padding: 8px 16px; border-radius: 99px;
+            border: 1.5px solid var(--crimson); transition: all 0.2s;
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .btn-login:hover { background: var(--crimson); color: #fff; }
+        .btn-register {
+            font-size: 12px; font-weight: 600; color: var(--gold);
+            text-decoration: none; padding: 8px 20px; border-radius: 99px;
+            background: var(--crimson); border: 1.5px solid var(--crimson);
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .btn-register:hover { background: var(--crimson-dark); }
+
+        /* ── Footer ── */
+        .site-footer { background: var(--espresso); color: var(--gold); }
+        .footer-grid {
+            max-width: 1400px; margin: 0 auto;
+            display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr;
+            gap: 48px; padding: 72px 3rem 48px;
+        }
+        .footer-brand-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+        .footer-tagline { font-size: 12px; color: rgba(201,168,76,0.7); line-height: 1.7; font-style: italic; }
+        .footer-socials { display: flex; gap: 10px; margin-top: 24px; }
+        .footer-social {
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 1px solid rgba(201,168,76,0.25);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-size: 16px; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .footer-social:hover { background: var(--gold); color: var(--espresso); border-color: var(--gold); }
+        .footer-col-title {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.2em; color: #fff; margin-bottom: 20px;
+        }
+        .footer-links { display: flex; flex-direction: column; gap: 12px; }
+        .footer-link { font-size: 13px; color: rgba(201,168,76,0.75); text-decoration: none; transition: color 0.2s; }
+        .footer-link:hover { color: #fff; }
+        .footer-contact-item { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: rgba(201,168,76,0.75); margin-bottom: 12px; }
+        .footer-contact-item i { color: var(--gold); margin-top: 2px; font-size: 14px; }
+        .footer-bottom {
+            border-top: 1px solid rgba(201,168,76,0.1);
+            padding: 20px 3rem; text-align: center;
+            font-size: 10px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.25em; color: rgba(201,168,76,0.4);
+            max-width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; padding: 48px 2rem 32px; }
+        }
+        @media (max-width: 768px) {
+            .topbar { padding: 8px 1.5rem; }
+            .topbar-marquee { display: none; }
+            .nav-inner { padding: 0 1.5rem; height: 64px; }
+            .nav-logo-text { font-size: 15px; }
+            .nav-search { display: none; }
+            .footer-grid { grid-template-columns: 1fr; gap: 24px; padding: 40px 1.5rem 24px; }
+            .footer-bottom { padding: 16px 1.5rem; }
+        }
+    </style>
 </head>
 
-<body class="font-sans leading-relaxed" style="background-color: #FFFFF0; color: #4B2E0A;">
+<body>
 
     @include('layouts.alert')
 
-    <!-- Top Bar -->
-    <div
-        class="flex justify-between items-center px-6 md:px-16 py-2 font-semibold text-sm"
-        style="background-color: #800020; color: #D4AF37;"
-    >
-        <p>Where Vision Meets Elegance</p>
-        <p>Call us: 9815444184</p>
+    {{-- ── Topbar ── --}}
+    <div class="topbar">
+        <span class="hidden md:block" style="letter-spacing:0.2em; font-size:10px;">Where Vision Meets Elegance</span>
+
+        <div class="topbar-marquee hidden md:block">
+            <div class="topbar-marquee-inner">
+                <span>Free shipping over Rs. 2000</span>
+                <span class="topbar-sep">·</span>
+                <span>30-day easy returns</span>
+                <span class="topbar-sep">·</span>
+                <span>1-year warranty on all frames</span>
+                <span class="topbar-sep">·</span>
+                <span>Expert eye-care since 2004</span>
+                <span class="topbar-sep">·</span>
+                <span>Free shipping over Rs. 2000</span>
+                <span class="topbar-sep">·</span>
+                <span>30-day easy returns</span>
+                <span class="topbar-sep">·</span>
+                <span>1-year warranty on all frames</span>
+                <span class="topbar-sep">·</span>
+                <span>Expert eye-care since 2004</span>
+                <span class="topbar-sep">·</span>
+            </div>
+        </div>
+
+        <a href="tel:+9779815444184" class="flex items-center gap-2" style="font-size:11px;">
+            <i class="ri-phone-fill"></i> 9815444184
+        </a>
     </div>
 
-    <!-- Main Navbar -->
-    <nav class="border-b border-gray-300 bg-[#FFFFF0] shadow-sm">
-        <div class="flex justify-between items-center px-6 md:px-16 py-3"> {{-- Adjusted py for better spacing --}}
+    {{-- ── Main Nav ── --}}
+    <nav class="main-nav">
+        <div class="nav-inner">
 
-            <!-- Left: Logo and Shop Name -->
-            <div class="flex-shrink-0 mr-6 flex items-center gap-x-3">
-                <a href="{{ route('home') }}" class="flex items-center gap-x-3">
-                    <img src="{{ asset('images/Sairam.png') }}" alt="Sairam Logo" class="h-12 md:h-16 select-none" />
-                    <span class="text-xl md:text-2xl font-bold text-[#800020] tracking-wide">Sairam Chasma Pasal</span>
-                </a>
-            </div>
+            {{-- Logo --}}
+            <a href="{{ route('home') }}" class="nav-logo">
+                <img src="{{ asset('images/Sairam.png') }}" alt="Sairam Logo" />
+                <div>
+                    <div class="nav-logo-text">Sairam</div>
+                    <div class="nav-logo-sub">Chasma Pasal</div>
+                </div>
+            </a>
 
-            <!-- Center: Search Bar -->
-            <div class="flex-grow max-w-xl mx-4 md:mx-10"> {{-- Adjusted mx for smaller screens --}}
-                <form action="{{ route('search') }}" method="GET" class="relative w-full">
-                    <input
-                        type="search"
-                        name="search"
-                        value="{{ request()->query('search') }}"
-                        placeholder="Search..." {{-- Changed placeholder for better UX --}}
-                        class="w-full border border-[#800020] rounded-full px-4 pr-12 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition"
-                        style="color: #4B2E0A;"
-                    />
-                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#800020] hover:text-[#D4AF37] transition">
-                        <i class="ri-search-line text-lg"></i>
-                    </button>
+            {{-- Search --}}
+            <div class="nav-search">
+                <form action="{{ route('search') }}" method="GET">
+                    <input type="search" name="search" value="{{ request()->query('search') }}"
+                           placeholder="Search frames, brands, styles…" autocomplete="off" />
+                    <button type="submit"><i class="ri-search-2-line"></i></button>
+                    <div id="search-suggestions" class="hidden"></div>
                 </form>
             </div>
 
-            <!-- Right: User, Orders, Cart -->
-            <div class="flex items-center gap-x-6 md:gap-x-10 font-medium text-sm md:text-base text-[#4B2E0A]"> {{-- Adjusted gap-x --}}
-
+            {{-- Actions --}}
+            <div class="nav-actions">
                 @auth
-                    <!-- Orders -->
-                    <a href="{{ route('order.index') }}" class="flex flex-col items-center group" title="My Orders">
-                        <img src="{{ asset('images/order.png') }}" alt="Orders" class="w-6 h-6 mb-1 group-hover:brightness-110 transition" />
-                        <span class="text-xs text-[#800020]">Orders</span>
-                    </a>
 
-                    <!-- Cart -->
-                    <a href="{{ route('mycart') }}" class="relative flex flex-col items-center group" title="My Cart">
-                        <img src="{{ asset('images/shopping-cart.png') }}" alt="Shopping Cart" class="w-6 h-6 mb-1 group-hover:brightness-110 transition" />
-                        <span class="text-xs text-[#800020]">Cart</span>
+                {{-- Orders --}}
+                <a href="{{ route('vieworder') }}" class="nav-action-btn" title="My Orders">
+                    <i class="ri-history-line"></i>
+                    <span class="lbl">Orders</span>
+                </a>
 
-                        @php
-                            $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count();
-                        @endphp
-                        @if($cartCount > 0)
-                            <span class="absolute -top-2 -right-2 bg-[#f9ecef] text-[#800020] border border-[#800020] text-[10px] w-5 h-5 flex items-center justify-center font-bold rounded-full">
-                                {{ $cartCount }}
-                            </span>
+                {{-- Cart --}}
+                <a href="{{ route('mycart') }}" class="nav-action-btn" title="My Cart">
+                    <i class="ri-shopping-bag-3-line"></i>
+                    <span class="lbl">Cart</span>
+                    @php $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count(); @endphp
+                    @if($cartCount > 0)
+                        <span class="cart-badge">{{ $cartCount }}</span>
+                    @endif
+                </a>
+
+                {{-- Notifications --}}
+                <div style="position:relative;">
+                    <button class="nav-action-btn" onclick="toggleNotif()" id="notifToggle">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="lbl">Alerts</span>
+                        @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
+                        @if($unreadCount > 0)
+                            <span class="notif-badge" id="notif-count">{{ $unreadCount }}</span>
                         @endif
-                    </a>
-
-                    <!-- Notifications -->
-                    <div class="relative">
-                        <button onclick="toggleNotificationDropdown()" class="relative text-[#4B2E0A] flex flex-col items-center focus:outline-none">
-                            <div class="relative w-7 h-7">
-                                <img src="{{ asset('images/notification.png') }}" alt="Notifications" class="w-7 h-7" />
-
-                                @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
-                                @if($unreadCount > 0)
-                                    <span id="notif-count"
-                                          class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white">
-                                        {{ $unreadCount }}
-                                    </span>
-                                @endif
+                    </button>
+                    <div class="notif-panel" id="notifPanel">
+                        <div class="notif-head">Notifications</div>
+                        @forelse(auth()->user()->notifications->take(5) as $notification)
+                            <div class="notif-item {{ $notification->unread() ? 'unread' : '' }}">
+                                <p>{{ $notification->data['message'] }}</p>
+                                <time>{{ $notification->created_at->diffForHumans() }}</time>
                             </div>
-                            <span class="text-xs text-[#800020] select-none mt-1">Notifications</span>
-                        </button>
-
-                        <!-- Dropdown -->
-                        <div id="notificationDropdown"
-                             class="hidden absolute right-0 mt-2 w-72 max-h-96 overflow-y-auto bg-white border border-gray-200 rounded shadow-lg z-50">
-                            <div class="p-3 border-b text-[#800020] font-semibold">Notifications</div>
-
-                            @forelse(auth()->user()->notifications->take(5) as $notification)
-                                <div class="px-4 py-2 text-sm text-gray-700 border-b hover:bg-gray-50">
-                                    {{ $notification->data['message'] }}
-                                    <div class="text-xs text-gray-400 mt-1">
-                                        {{ $notification->created_at->diffForHumans() }}
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="px-4 py-2 text-sm text-gray-500">No notifications</div>
-                            @endforelse
-
-                            <div class="text-center p-2">
-                                <a href="{{ route('notifications.all') }}" class="text-sm text-[#800020] hover:underline">View All</a>
-                            </div>
-                        </div>
+                        @empty
+                            <div style="padding:32px 18px;text-align:center;color:#bbb;font-size:13px;">No new notifications</div>
+                        @endforelse
+                        <a href="{{ route('notifications.all') }}" class="notif-footer">View all</a>
                     </div>
+                </div>
 
-                    <!-- Account Dropdown (now with user photo/name) -->
-                    <div class="relative group flex items-center cursor-pointer select-none">
-                        @php
-                            $accountAvatarSrc = null;
-                            if (auth()->user()->photo) {
-                                $accountAvatarSrc = asset(auth()->user()->photo);
-                            } elseif (auth()->user()->profile_image) {
-                                $accountAvatarSrc = auth()->user()->profile_image;
-                            }
-                            // Get first name
-                            $firstName = explode(' ', auth()->user()->name)[0];
-                        @endphp
-
-                        <div class="flex flex-col items-center gap-y-1"> {{-- Changed to flex-col for name below photo --}}
-                            @if($accountAvatarSrc)
-                                <img src="{{ $accountAvatarSrc }}"
-                                     alt="{{ auth()->user()->name }}'s Profile Photo"
-                                     class="w-8 h-8 rounded-full object-cover shadow-sm group-hover:scale-105 transition transform"> {{-- Removed border classes --}}
-                            @else
-                                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-bold shadow-sm group-hover:scale-105 transition transform"> {{-- Removed border classes --}}
-                                    {{ strtoupper(substr($firstName, 0, 2)) }} {{-- Use first name for placeholder if applicable --}}
-                                </div>
-                            @endif
-                            <span class="text-xs font-semibold text-[#800020] group-hover:text-[#6b001a] transition">{{ $firstName }}</span> {{-- Display first name --}}
-                            {{-- Removed the down arrow icon --}}
-                        </div>
-
-                        <!-- Dropdown Content -->
-                        <div class="hidden group-hover:block absolute top-full right-0 bg-[#FFFFF0] border border-[#800020] rounded-lg shadow-lg w-40 z-20 text-sm mt-1">
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-[#D4AF37] hover:text-[#800020] transition flex items-center gap-2 rounded-t-lg">
-                                <i class="ri-profile-line"></i> My Profile
-                            </a>
+                {{-- Profile --}}
+                <div class="profile-wrap" style="position:relative;">
+                    <div class="nav-action-btn" style="cursor:default;">
+                        @php $avatar = auth()->user()->photo ?? auth()->user()->profile_image; @endphp
+                        @if($avatar)
+                            <img src="{{ asset($avatar) }}" class="nav-avatar" style="object-fit:cover;" />
+                        @else
+                            <div class="nav-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+                        @endif
+                        <span class="lbl">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                    </div>
+                    <div class="profile-dropdown">
+                        <a href="{{ route('profile.edit') }}"><i class="ri-user-settings-line" style="color:var(--crimson)"></i> My Profile</a>
+                        <div class="drop-divider">
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-[#D4AF37] hover:text-[#800020] transition flex items-center gap-2 rounded-b-lg">
-                                    <i class="ri-logout-box-r-line"></i> Logout
-                                </button>
+                                <button type="submit"><i class="ri-logout-circle-r-line"></i> Logout</button>
                             </form>
                         </div>
                     </div>
+                </div>
+
                 @else
-                    <!-- Guest Links -->
-                    <a href="{{ route('login') }}" class="transition hover:text-[#D4AF37] text-base">Login</a>
-                    <a href="{{ route('register') }}" class="transition hover:text-[#D4AF37] text-base">Register</a>
+                    <a href="{{ route('login') }}" class="btn-login">Login</a>
+                    <a href="{{ route('register') }}" class="btn-register">Register</a>
                 @endauth
             </div>
         </div>
 
-        <!-- Second row: Categories -->
-        <div class="bg-transparent">
-            <div class="max-w-full md:max-w-7xl mx-auto px-6 md:px-16">
-                <nav class="flex space-x-4 overflow-x-auto scrollbar-hide py-2 text-sm font-semibold text-[#4B2E0A]">
-                    @foreach($categories as $category)
-                        <a href="{{ route('categoryproduct', $category->id) }}"
-                           class="hover:text-[#D4AF37] transition whitespace-nowrap"> {{-- Added whitespace-nowrap for categories --}}
-                            {{ $category->name }}
-                        </a>
-                    @endforeach
-                </nav>
+        {{-- Category Bar --}}
+        <div class="cat-bar">
+            <div class="cat-bar-inner">
+                @foreach($categories as $category)
+                    <a href="{{ route('categoryproduct', $category->id) }}" class="cat-link">
+                        {{ $category->name }}
+                    </a>
+                @endforeach
             </div>
         </div>
     </nav>
 
-    @yield('content')
+    {{-- ── Content ── --}}
+    <main class="min-h-[60vh]">
+        @yield('content')
+    </main>
 
-    <!-- Footer -->
-    <footer class="grid grid-cols-1 md:grid-cols-3 gap-8 px-8 md:px-16 py-10" style="background-color: #800020; color: #D4AF37;">
-        <!-- Branding & Description -->
-        <div>
-            <h1 class="text-2xl font-bold mb-3 tracking-wider">Sairam Chasma Pasal</h1>
-            <p class="text-sm leading-relaxed">
-                Trusted for 20+ years, we offer premium eyewear, expert eye care, and timeless style tailored just for you.
-            </p>
-            <div class="flex space-x-4 mt-4">
-                <a href="#" class="hover:text-white transition"><i class="ri-facebook-circle-fill text-2xl"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="ri-instagram-fill text-2xl"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="ri-twitter-fill text-2xl"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="ri-tiktok-fill text-2xl"></i></a>
+    {{-- ── Footer ── --}}
+    <footer class="site-footer">
+        <div class="footer-grid">
+
+            <div>
+                <div class="footer-brand-name">Sairam Chasma Pasal</div>
+                <p class="footer-tagline">"Trusted for over 20 years, we provide premium frames and expert eye care with precision and elegance."</p>
+                <div class="footer-socials">
+                    <a href="#" class="footer-social"><i class="ri-facebook-fill"></i></a>
+                    <a href="https://www.instagram.com/sairamlegacy7" class="footer-social" target="_blank"><i class="ri-instagram-line"></i></a>
+                    <a href="#" class="footer-social"><i class="ri-tiktok-fill"></i></a>
+                </div>
             </div>
-        </div>
 
-        <!-- Quick Links -->
-        <div>
-            <h1 class="text-2xl font-bold mb-3 tracking-wider">Shop</h1>
-            <ul class="space-y-2 text-sm">
-                <li class="cursor-pointer hover:text-white transition">Men's Sunglasses</li>
-                <li class="cursor-pointer hover:text-white transition">Women's Sunglasses</li>
-                <li class="cursor-pointer hover:text-white transition">Prescription Glasses</li>
-                <li class="cursor-pointer hover:text-white transition">New Arrivals</li>
-            </ul>
-        </div>
+            <div>
+                <div class="footer-col-title">Shop</div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Sunglasses</a>
+                    <a href="#" class="footer-link">Prescription Frames</a>
+                    <a href="#" class="footer-link">Contact Lenses</a>
+                    <a href="#" class="footer-link">New Arrivals</a>
+                    <a href="#" class="footer-link">Kids Eyewear</a>
+                    <a href="#" class="footer-link">Blue Light Glasses</a>
+                </div>
+            </div>
 
-        <!-- Contact Info -->
-        <div>
-            <h1 class="text-2xl font-bold mb-3 tracking-wider">Get in Touch</h1>
-            <p class="text-sm mb-2">Phone: 9815444184</p>
-            <p class="text-sm mb-2">Email: sairamlegacy1@gmail.com</p>
-            <p class="text-sm">Location: Geetanagar, Nepal</p>
+            <div>
+                <div class="footer-col-title">Services</div>
+                <div class="footer-links">
+                    <a href="{{ route('virtual.index') }}" class="footer-link">Virtual Try-On</a>
+                    <a href="#" class="footer-link">Eye Exam Booking</a>
+                    <a href="#" class="footer-link">Prescription Upload</a>
+                    <a href="#" class="footer-link">Frame Repair</a>
+                    <a href="#" class="footer-link">Lens Replacement</a>
+                </div>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Contact</div>
+                <div class="footer-contact-item"><i class="ri-map-pin-2-fill"></i><span>Geetanagar, Bharatpur, Chitwan, Nepal</span></div>
+                <div class="footer-contact-item"><i class="ri-phone-fill"></i><a href="tel:+9779815444184" style="color:inherit;">9815444184</a></div>
+                <div class="footer-contact-item"><i class="ri-mail-fill"></i><a href="mailto:sairamlegacy1@gmail.com" style="color:inherit;">sairamlegacy1@gmail.com</a></div>
+                <div class="footer-contact-item"><i class="ri-time-fill"></i><span>Sun – Fri, 10:00 AM – 7:00 PM</span></div>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            &copy; {{ date('Y') }} Sairam Chasma Pasal · All Rights Reserved
         </div>
     </footer>
-    <script>
-        function toggleNotificationDropdown() {
-            const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('hidden');
 
-            // Mark as read
+    <script>
+        function toggleNotif() {
+            const panel = document.getElementById('notifPanel');
+            panel.classList.toggle('open');
             fetch("{{ route('notifications.markAsRead') }}", {
                 method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Accept": "application/json"
-                }
-            }).then(response => {
-                if (response.ok) {
-                    const countBadge = document.getElementById('notif-count');
-                    if (countBadge) countBadge.remove();
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Accept": "application/json" }
+            }).then(r => {
+                if (r.ok) {
+                    const b = document.getElementById('notif-count');
+                    if (b) b.remove();
                 }
             });
         }
-
-        // Close dropdown if clicked outside
-        window.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('notificationDropdown');
-            const button = document.querySelector('button[onclick="toggleNotificationDropdown()"]');
-            if (dropdown && !dropdown.contains(e.target) && !button.contains(e.target)) {
-                dropdown.classList.add('hidden');
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('notifPanel');
+            const btn = document.getElementById('notifToggle');
+            if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
             }
         });
-
-        // 🔔 Optional: Play sound on new notification (replace path with your sound)
-        function playNotificationSound() {
-            const audio = new Audio("{{ asset('sounds/notification.mp3') }}"); // Add your .mp3 file in public/sounds
-            audio.play();
-        }
-
-        // Optional: Simulate notification sound trigger (only if using Echo/Pusher)
-        window.Echo && Echo.private(`App.Models.User.{{ auth()->id() }}`)
-            .notification((notification) => {
-                playNotificationSound();
-                // You can also increase count manually if needed
-            });
     </script>
+
+    @stack('scripts')
 </body>
 </html>

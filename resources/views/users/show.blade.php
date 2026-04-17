@@ -4,65 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Details</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F8F8F8; /* Light background for contrast */
-        }
-    </style>
 </head>
-<body class="flex items-center justify-center min-h-screen py-10 px-4 sm:px-6 relative">
-    {{-- Back Arrow to Users List --}}
-    <a href="{{ route('users.index') }}" class="absolute top-6 left-6 text-[#800020] hover:text-[#6b001a] transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#800020] rounded-full p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-        </svg>
-    </a>
+<body class="bg-[#FFFFF0] min-h-screen flex flex-col items-center py-10 px-4">
 
-    <div class="max-w-2xl mx-auto p-8 bg-white shadow-2xl rounded-xl border border-gray-100 w-full">
-        <h1 class="text-3xl font-extrabold text-[#800020] mb-8 text-center">User Details</h1>
+    {{-- Back button --}}
+    <div class="w-full max-w-lg mb-6">
+        <a href="{{ route('users.index') }}"
+           class="inline-flex items-center gap-2 text-[#800020] text-sm font-medium border-[1.5px] border-[#e8d9be] bg-white px-4 py-2 rounded-full hover:border-[#D4AF37] transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+            </svg>
+            Back to users
+        </a>
+    </div>
 
-        <div class="flex flex-col items-center mb-8">
-            {{-- User Profile Picture --}}
-            @php
-                $userProfilePic = null;
-                if ($user->photo) {
-                    $userProfilePic = asset($user->photo);
-                } elseif ($user->profile_image) {
-                    $userProfilePic = $user->profile_image;
-                }
-            @endphp
+    <div class="w-full max-w-lg bg-white border-[1.5px] border-[#e8d9be] rounded-2xl overflow-hidden">
 
-            @if ($userProfilePic)
-                <img src="{{ $userProfilePic }}"
-                     alt="{{ $user->name }}'s Profile Photo"
-                     class="w-32 h-32 object-cover rounded-full border-4 border-[#D4AF37] shadow-md mb-4">
-            @else
-                <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-3xl font-bold border-4 border-gray-400 shadow-md mb-4">
-                    {{ strtoupper(substr($user->name, 0, 2)) }}
+        {{-- Banner + Avatar --}}
+        <div class="bg-[#800020] h-20 flex justify-center relative">
+            <div class="absolute -bottom-9">
+                @php
+                    $avatarSrc = $user->photo ? asset($user->photo) : ($user->profile_image ?? null);
+                @endphp
+                @if($avatarSrc)
+                    <img src="{{ $avatarSrc }}" class="w-[72px] h-[72px] rounded-full border-[3px] border-[#D4AF37] object-cover" />
+                @else
+                    <div class="w-[72px] h-[72px] rounded-full border-[3px] border-[#D4AF37] bg-[#D4AF37] flex items-center justify-center text-[#800020] text-2xl font-medium">
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Body --}}
+        <div class="px-7 pt-14 pb-7 text-center">
+            <h2 class="text-xl font-medium text-[#800020]">{{ $user->name }}</h2>
+            <span class="inline-block mt-2 mb-5 bg-[#fff0f3] border border-[#f5c4c4] text-[#800020] text-[11px] px-3 py-1 rounded-full">
+                Joined {{ $user->created_at->format('F j, Y') }}
+            </span>
+
+            <hr class="border-[#f0e8d4] mb-5">
+
+            <div class="grid grid-cols-2 gap-3 text-left mb-6">
+                <div class="col-span-2 bg-[#fff8f0] border border-[#f0e8d4] rounded-xl p-3">
+                    <p class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Email</p>
+                    <p class="text-sm font-medium text-[#4B2E0A] break-all">{{ $user->email }}</p>
                 </div>
-            @endif
+                <div class="bg-[#fff8f0] border border-[#f0e8d4] rounded-xl p-3">
+                    <p class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Phone</p>
+                    <p class="text-sm font-medium text-[#4B2E0A]">{{ $user->phone ?? 'N/A' }}</p>
+                </div>
+                <div class="bg-[#fff8f0] border border-[#f0e8d4] rounded-xl p-3">
+                    <p class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Gender</p>
+                    <p class="text-sm font-medium text-[#4B2E0A]">{{ ucfirst($user->gender ?? 'N/A') }}</p>
+                </div>
+                <div class="col-span-2 bg-[#fff8f0] border border-[#f0e8d4] rounded-xl p-3">
+                    <p class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Address</p>
+                    <p class="text-sm font-medium text-[#4B2E0A]">{{ $user->address ?? 'N/A' }}</p>
+                </div>
+            </div>
 
-            <h2 class="text-2xl font-bold text-[#800020]">{{ $user->name }}</h2>
-        </div>
-
-        <div class="space-y-4 text-[#4B2E0A] text-base mb-8">
-            <p><strong class="text-[#800020]">Email:</strong> {{ $user->email }}</p>
-            <p><strong class="text-[#800020]">Address:</strong> {{ $user->address ?? 'N/A' }}</p>
-            <p><strong class="text-[#800020]">Phone:</strong> {{ $user->phone ?? 'N/A' }}</p>
-            <p><strong class="text-[#800020]">Gender:</strong> {{ ucfirst($user->gender ?? 'N/A') }}</p>
-            <p><strong class="text-[#800020]">Joined:</strong> {{ $user->created_at->format('F j, Y - g:i A') }}</p>
-        </div>
-
-        <div class="flex justify-center mt-6">
-            <a href="{{ route('users.index') }}"
-               class="inline-block bg-[#D4AF37] hover:bg-[#c39f2c] text-[#4B2E0A] font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37]">
-                ← Back to Users List
-            </a>
+            <div class="flex gap-3">
+                <a href="{{ route('users.index') }}"
+                   class="flex-1 text-center text-sm font-medium py-2.5 rounded-xl border-[1.5px] border-[#D4AF37] bg-[#FFFFF0] text-[#800020] hover:bg-[#D4AF37] hover:text-[#4B2E0A] transition">
+                    ← Back to list
+                </a>
+                <a href="{{ route('users.edit', $user->id) }}"
+                   class="flex-1 text-center text-sm font-medium py-2.5 rounded-xl border-[1.5px] border-[#800020] bg-[#800020] text-[#FFFFF0] hover:bg-[#a8324a] transition">
+                    Edit profile
+                </a>
+            </div>
         </div>
     </div>
 </body>

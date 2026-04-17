@@ -3,162 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Order;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\Product;
-
 use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
-
-public function index(Request $request)
-{
-    $categories = Category::orderBy('priority', 'desc')->latest()->limit(4)->get();
-
-    $query = Product::where('status', 'Show');
-
-    // 🔍 Filter by Category
-    if ($request->has('category') && $request->category) {
-        $query->where('category_id', $request->category);
-    }
-
-    // 💸 Filter by Price Range
-    if ($request->filled('price_min')) {
-        $query->where('price', '>=', $request->price_min);
-    }
-
-    if ($request->filled('price_max')) {
-        $query->where('price', '<=', $request->price_max);
-    }
-
-    // ↕️ Sorting
-    switch ($request->sort) {
-        case 'price_asc':
-            $query->orderBy('discounted_price' ?? 'price', 'asc');
-            break;
-
-        case 'price_desc':
-            $query->orderBy('discounted_price' ?? 'price', 'desc');
-            break;
-
-        case 'name_asc':
-            $query->orderBy('name', 'asc');
-            break;
-
-        case 'name_desc':
-            $query->orderBy('name', 'desc');
-            break;
-
-        case 'newest':
-            $query->orderBy('created_at', 'desc');
-            break;
-
-        default:
-            $query->latest();
-    }
-
-    // 🧾 Paginated Product List (AJAX support)
-    $products = $query->paginate(4);
-
-    if ($request->ajax()) {
-        return view('partials.product_cards', compact('products'))->render();
-    }
-
-    // ⭐ Featured Products (non-filtered)
-    $featured = Product::where('status', 'Show')->inRandomOrder()->limit(4)->get();
-
-    return view('welcome', compact('products', 'categories', 'featured'));
-}
-
-
-public function viewproduct($id)
+    public function index(Request $request)
     {
-        // Find the product by ID, eager load its category, and all associated reviews along with the user for each review
-        $product = Product::with('category', 'reviews.user')->findOrFail($id);
+        $categories = Category::orderBy('priority', 'desc')->latest()->limit(4)->get();
 
-        // You might also fetch related products here
-        $relatedproducts = Product::where('category_id', $product->category_id)
-                                  ->where('id', '!=', $product->id)
-                                  ->inRandomOrder()
-                                  ->limit(4) // Limit to 4 related products
-                                  ->get();
+        $query = Product::where('status', 'Show');
 
-        // Pass the product (as $products) and related products to the view
-        return view('viewproduct', ['products' => $product, 'relatedproducts' => $relatedproducts]);
-    }
-
-public function categoryproduct($id)
-{
-    $category = Category::findOrFail($id);
-    $products = Product::where('status', 'Show')->where('category_id', $id)->paginate(8);
-    return view('categoryproduct', compact('products', 'category'));
-}
-public function checkout($cartid)
-{
-$cart = Cart:: find($cartid);
-if($cart->product->discounted_price =='')
-{
-    $cart->total =$cart->product->price *$cart->qty;
-}
-else
-{
-    $cart->total =$cart->product->discounted_price *$cart->qty;
-}
-return view('checkout',compact('cart'));
-}
-
-    /**
-     * Display the main product listing page with filtering, sorting, and text search capabilities.
-     * This method serves as the 'home' or 'shop' page where users can browse and filter products.
-     * It will be mapped to the 'home' route.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
-    public function search(Request $request) // This method name will handle your main product listing/filters
-    {
-        // Start with all active products
-        $query = Product::query()->where('status', 'Show');
-
-        // 1. Text Search Filter (using 'search' input name as per your previous request and typical usage)
-        if ($request->filled('search')) {
-            $searchTerm = $request->search; // Using 'search' as the query parameter name
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
-            // Optional: Add validation for the search term here
-            // $request->validate(['search' => 'min:2|max:255']);
-        } else {
-            $searchTerm = null; // Set to null if no search term is present
-        }
-
-
-        // 2. Category Filter (from sidebar or main filter form)
+        // Filter by Category
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
-        // 3. Price Range Filter
         if ($request->filled('price_min')) {
-            if (is_numeric($request->price_min)) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('price', '>=', $request->price_min)
-                      ->orWhere('discounted_price', '>=', $request->price_min);
-                });
-            }
+            $query->whereRaw('COALESCE(discounted_price, price) >= ?', [$request->price_min]);
         }
 
         if ($request->filled('price_max')) {
-            if (is_numeric($request->price_max)) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('price', '<=', $request->price_max)
-                      ->orWhere('discounted_price', '<=', $request->price_max);
-                });
-            }
+            $query->whereRaw('COALESCE(discounted_price, price) <= ?', [$request->price_max]);
         }
 
-        // 4. Sorting
+        // Sorting — use COALESCE so discounted_price is respected
         switch ($request->sort) {
             case 'price_asc':
                 $query->orderByRaw('COALESCE(discounted_price, price) ASC');
@@ -173,26 +46,185 @@ return view('checkout',compact('cart'));
                 $query->orderBy('name', 'desc');
                 break;
             case 'newest':
-                $query->orderBy('created_at', 'desc');
-                break;
             default:
-                $query->orderBy('created_at', 'desc'); // Default sort: newest first
+                $query->latest();
+                break;
         }
 
-        // Execute the query and paginate results
-        // Eager load category to avoid N+1 problem in Blade
-        $products = $query->with('category')->paginate(12);
+        $products = $query->paginate(4);
 
-        // Fetch ALL categories for the sidebar (ordered by name for clean display)
-        $allCategories = Category::orderBy('name', 'asc')->get();
-
-        // Check if an AJAX request for partial loading (e.g., infinite scroll)
         if ($request->ajax()) {
             return view('partials.product_cards', compact('products'))->render();
         }
 
-        // Return the main product listing view (which is 'home.blade.php' as per your Blade)
-        // Pass the products, all categories, and the search term (if any)
-        return view('search', compact('products', 'allCategories', 'searchTerm'));
+        $featured = Product::where('status', 'Show')->inRandomOrder()->limit(4)->get();
+
+        return view('welcome', compact('products', 'categories', 'featured'));
+    }
+
+
+    public function viewproduct($id)
+{
+    $product = Product::with('category', 'reviews.user')->findOrFail($id);
+
+    // Step 1: Get users who bought this product
+    $userIds = Order::where('product_id', $id)
+                    ->pluck('user_id');
+
+    // Step 2: Find other products bought by those users
+    $frequentProductIds = Order::select('product_id', \DB::raw('COUNT(*) as frequency'))
+                                ->whereIn('user_id', $userIds)
+                                ->where('product_id', '!=', $id)
+                                ->groupBy('product_id')
+                                ->orderByDesc('frequency')
+                                ->limit(4)
+                                ->pluck('product_id');
+
+    // Step 3: Get product details
+    $frequentlyBought = Product::whereIn('id', $frequentProductIds)->get();
+
+    // Fallback (if no history exists)
+    if ($frequentlyBought->isEmpty()) {
+        $frequentlyBought = Product::where('category_id', $product->category_id)
+                                    ->where('id', '!=', $product->id)
+                                    ->inRandomOrder()
+                                    ->limit(4)
+                                    ->get();
+    }
+
+    return view('viewproduct', [
+        'products' => $product,
+        'frequentlyBought' => $frequentlyBought
+    ]);
+}
+
+
+    public function categoryproduct(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+        $query = Product::where('status', 'Show')->where('category_id', $id);
+
+        if ($request->filled('price_min') && is_numeric($request->price_min)) {
+            $query->whereRaw('COALESCE(discounted_price, price) >= ?', [$request->price_min]);
+        }
+
+        if ($request->filled('price_max') && is_numeric($request->price_max)) {
+            $query->whereRaw('COALESCE(discounted_price, price) <= ?', [$request->price_max]);
+        }
+
+        if ($request->filled('category_id')) {
+            $selectedCategoryId = $request->category_id;
+            $query->where('category_id', $selectedCategoryId);
+
+            if ($selectedCategoryId != $id) {
+                $category = Category::find($selectedCategoryId) ?? $category;
+            }
+        }
+
+        switch ($request->query('sort')) {
+            case 'price_asc':
+                $query->orderByRaw('COALESCE(discounted_price, price) ASC');
+                break;
+            case 'price_desc':
+                $query->orderByRaw('COALESCE(discounted_price, price) DESC');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $products = $query->paginate(8)->withQueryString();
+        $allCategories = Category::orderBy('name')->get();
+
+        return view('categoryproduct', compact('products', 'category', 'allCategories'));
+    }
+
+
+    public function checkout($cartid)
+    {
+        $cart = Cart::findOrFail($cartid);
+
+        // Use discounted_price if set and non-zero, otherwise fall back to price
+        $effectivePrice = !empty($cart->product->discounted_price)
+            ? $cart->product->discounted_price
+            : $cart->product->price;
+
+        $cart->total = $effectivePrice * $cart->qty;
+
+        return view('checkout', compact('cart'));
+    }
+
+
+    public function search(Request $request)
+    {
+        $query = Product::where('status', 'Show');
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('price_min')) {
+            $query->whereRaw('COALESCE(discounted_price, price) >= ?', [$request->price_min]);
+        }
+
+        if ($request->filled('price_max')) {
+            $query->whereRaw('COALESCE(discounted_price, price) <= ?', [$request->price_max]);
+        }
+
+        switch ($request->sort) {
+            case 'price_asc':
+                $query->orderByRaw('COALESCE(discounted_price, price) ASC');
+                break;
+            case 'price_desc':
+                $query->orderByRaw('COALESCE(discounted_price, price) DESC');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        $products = $query->with('category')->paginate(12)->withQueryString();
+        $allCategories = Category::orderBy('name', 'asc')->get();
+
+        if ($request->ajax()) {
+            return view('partials.product_cards', compact('products'))->render();
+        }
+
+        return view('search', compact('products', 'allCategories'));
+    }
+
+
+    public function vieworder()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $orders = $user->orders()->with('product')->get();
+
+        return view('vieworder', compact('orders'));
     }
 }
